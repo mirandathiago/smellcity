@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+    </head>
+    <body>
+    
+    
+        
+        <div id="cidade"></div>
+    
+    
+    
+     <script src="three.js"></script>
+     <script src="orbit.js"></script>
+        <script>
+
+   
+    
+
+
+ var scene,renderer;
+ var width = window.innerWidth;
+ var height = window.innerHeight;
+ 
+ var raycaster = new THREE.Raycaster();  
+ var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 100000000000);
+ var objetos = [];
+    
+    
+init();            
+function criarcidade(){
+    
+    var geometry = new THREE.BoxGeometry(1800,10,2000);
+    var material = new THREE.MeshBasicMaterial( {color: 0xFFFFFF, side: THREE.DoubleSide} );
+    //var material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    
+    //Lado Direito
+    geometry.faces[ 0 ].color.setHex( 0x6b6c6d );
+    geometry.faces[ 1 ].color.setHex( 0x6b6c6d );
+    
+    //Lado Esquerdo
+    geometry.faces[ 2 ].color.setHex( 0x6b6c6d );
+    geometry.faces[ 3 ].color.setHex( 0x6b6c6d );
+    
+    //SUPERIOR
+    geometry.faces[ 4 ].color.setHex( 0xFFFFFF );
+    geometry.faces[ 5 ].color.setHex( 0xFFFFFF );
+    //INFERIOR
+    geometry.faces[ 6 ].color.setHex( 0x6b6c6d );
+    geometry.faces[ 7 ].color.setHex( 0x6b6c6d );
+    //Frontal
+    geometry.faces[ 8 ].color.setHex( 0x6b6c6d );
+    geometry.faces[ 9 ].color.setHex( 0x6b6c6d );
+    //Traseira
+    geometry.faces[ 10 ].color.setHex( 0x6b6c6d );
+    geometry.faces[ 11 ].color.setHex( 0x6b6c6d );
+    
+
+    //var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+    //geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5));
+    
+    var cidade = new THREE.Mesh(geometry, material);
+    
+    cidade.position.set(0,0,0);
+    cidade.scale.set(1,1,1);
+    
+    var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+
+    var mat = new THREE.LineBasicMaterial( { color: 0xCCCCCC, linewidth: 2 } );
+
+    var wireframe = new THREE.LineSegments( geo, mat );
+
+    scene.add( wireframe );
+    
+    cidade.name = "cidade"
+    
+    objetos.push(cidade);
+    
+    return cidade;
+   
+    
+    
+    
+}
+
+function shadeColor2(color, percent) {   
+    var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+    return "0x"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+}
+            
+function criarbairro()
+{
+    
+    var geometry = new THREE.BoxGeometry(600,20,500);
+    var material = new THREE.MeshBasicMaterial({ color: 0x875699 });
+    
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,0));
+    
+    var bairro = new THREE.Mesh(geometry, material);
+    
+    bairro.position.set(-600,10,-700);
+    bairro.scale.set(1,1,1);
+
+
+    objetos.push(bairro);
+    
+    return bairro;
+
+}
+            
+            
+function criarpredio(x,z,altura,largura,nome){
+    
+    
+    geometry = new THREE.BoxGeometry( largura, altura, 100 );
+    cor = '2f9dbd';
+    
+    variacao = 0;
+   /* for ( var i = 0; i < geometry.faces.length; i = i + 2 ) {
+        geometry.faces[ i ].color.setHex( shadeColor2(cor,variacao) );
+        geometry.faces[ i+1 ].color.setHex( shadeColor2(cor,variacao) );
+        variacao += 0.1;
+                
+    }
+
+    
+    var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );*/
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0, 0));
+
+    var material = new THREE.MeshLambertMaterial({color:0x2f9dbd});
+	let predio = new THREE.Mesh( geometry,material);
+   
+    predio.position.x = x;
+    predio.position.y = (altura - (altura / 2))+ 10;
+    predio.position.z = z;
+    predio.scale.set(1,1,1);
+    predio.name = nome;
+    
+    objetos.push(predio);
+    
+    return predio;
+        
+    
+}            
+            
+function colorLuminance(hex, lum) {
+  let hex_string = ('000000' + hex.toString(16)).slice(-6);
+  let rgb = "#";
+
+  lum = lum || 0;
+
+  for (let i = 0; i < 3; i++) {
+    let num_color = parseInt(hex_string.substr(i * 2, 2), 16);
+    let str_color = Math.round(Math.min(Math.max(0, num_color + (num_color * lum)), 255)).toString(16);
+
+    rgb += ("00" + str_color).substr(str_color.length);
+  }
+
+  return rgb;
+}            
+
+function init() {
+    
+    
+
+	scene = new THREE.Scene();
+
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true});
+    renderer.setClearColor(0xcccccc);
+    renderer.setSize(width, height);
+    renderer.setPixelRatio( window.devicePixelRatio );
+    document.getElementById("cidade").appendChild(renderer.domElement);
+    
+    
+    camera.position.set(0, 1070, 2500);
+    
+    
+    luz = new THREE.AmbientLight(0xFFFFFF,0.5);
+    
+    luz2 = new THREE.PointLight(0xFFFFFF,0.5);
+    
+    scene.add(luz);
+    scene.add(luz2);
+    scene.add(camera);
+    
+    
+    
+    
+    var predio = new Array(); 
+    var cidade = criarcidade(scene);  
+    var bairro = criarbairro();
+    
+    scene.add(cidade);
+        
+    predio1 = criarpredio(-350,800,290,80,"classe1");
+    predio2 = criarpredio(400,0,500,80,"classe2");
+    predio3 = criarpredio(-200,300,650,180,"classe3");
+    predio4 = criarpredio(100,30,520,60,"classe4");
+    predio5 = criarpredio(200,50,700,100,"classe5");
+    predio6 = criarpredio(800,20,80,90,"classe6");
+    predio7 = criarpredio(50,870,370,90,"classe7");
+    
+    
+    predio1 = criarpredio(0,0,290,80,"classe1");
+    predio2 = criarpredio(250,0,500,80,"classe2");
+    
+    bairro.add(predio1,predio2);
+    
+    cidade.add(bairro);
+    //cidade.add(bairro,predio1,predio2,predio3,predio4,predio5,predio6,predio7);
+   
+    
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    
+    
+    
+    
+    animate();
+    window.addEventListener('mousemove',acaomovimentacaomouse,false);
+
+    window.addEventListener( 'resize', onResize );
+        
+        
+}
+var objetoanterior;
+var dadosclasse = document.createElement("div");
+function acaomovimentacaomouse(e){
+    e.preventDefault();
+    
+    var raycaster = new THREE.Raycaster(); // create once and reuse
+    var mouse = new THREE.Vector2(); // create once and reuse
+
+mouse.x = ( e.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+mouse.y = - ( e.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+raycaster.setFromCamera( mouse, camera );
+
+var intersects = raycaster.intersectObjects( objetos );
+    
+
+if ( intersects.length > 0 ) {
+    
+    if(objetoanterior != intersects[0].object ){
+        
+        console.log( intersects[0].object );
+        
+        if(objetoanterior){
+            objetoanterior.material.color.set(objetoanterior.currentHex);
+        }
+            objetoanterior = intersects[0].object;   
+            objetoanterior.currentHex = objetoanterior.material.color.getHex();
+            if(intersects[0].object.name != "cidade" ){
+               objetoanterior.material.color.set(0xFF0000);
+                console.log(e.clientY);
+                
+                dadosclasse.innerHTML = "Classe: "+objetoanterior.name;
+                dadosclasse.style = "position:fixed;top:"+(e.clientY)+"px;left:"+(e.clientX+20)+"px;background-color:rgba(255,255,255,.85);width:250px;min-height:100px;border:1px solid #666;padding: 10px;";
+                document.getElementById("cidade").appendChild(dadosclasse);
+                
+                
+            }else{
+                dadosclasse.style = "display:none;"        
+            }
+        
+    }
+    
+        
+}else{
+    if(objetoanterior){
+        objetoanterior.material.color.set(objetoanterior.currentHex);
+        dadosclasse.style = "display:none;"
+    }
+    objetoanterior = null;
+    
+}
+    
+    
+     
+    
+    
+   
+}
+
+
+function onResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+    
+    
+    
+}
+
+function animate() {
+
+	requestAnimationFrame( animate );
+    render();
+  
+}
+function render(){
+    renderer.render( scene, camera );
+                
+}
+
+        
+        </script>
+
+        
+        
+       
+               
+    
+    </body>
+</html>

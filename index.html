@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+    </head>
+    <body>
+    
+    
+        
+        <div id="cidade"></div>
+    
+    
+    
+     <script src="three.js"></script>
+     <script src="orbit.js"></script>
+     <script src="packer.growing.js"></script>
+     <script src="packer.js"></script>    
+        
+     <script src="analise_pacote.json"></script>    
+        
+    
+     <script>
+        
+        var pacotes = new Array();
+        var classes = new Array();
+         
+         
+         function Pacote(nome){   
+                this.nome = nome;
+                this.classes = new Array();
+                this.w = 0;
+                this.h = 0;
+                this.profundidade = 0;
+                
+                this.adicionarClasse= function(c){
+                                        
+                    for(var i=0;i<this.classes.length;i++){
+                        if(this.classes[i].nome == c.nome ){
+                            //this.classes[i].atualizar(c);
+                            
+                            this.classes[i].w = c.w;
+                            //this.altura = classe.altura;
+                            this.classes[i].h = c.h;
+                            //this.metricas = classe.metricas;
+                            //this.codesmells = classe.codesmells;
+
+                            return true;
+                        }
+                   }
+                   this.classes.push(c);
+                }
+                
+                this.calculaTamanho = function(){
+                    
+                    //console.log(this.classes);
+                    
+                    this.classes.sort(function(a,b) { return (b.h > a.h); });
+                    var packer = new GrowingPacker();
+                    packer.fit(this.classes);
+                    
+                    //console.log(this.classes);
+                    //console.log(packer.root);
+                    
+                    /*for(var i=0;i<this.classes.length;i++){
+                        
+                        console.log(this.classes[i].fit.x,this.classes.fit.y,this.classes[i].w,this.classes[i].h);
+                        
+                        this.w += this.classes[i].w;
+                        
+                         
+                   }*/
+                    
+                    this.w = packer.root.w + 10;
+                    this.h = packer.root.w + 10;
+                    
+                } 
+                
+             
+                
+                
+         };
+         
+         
+         /****************************************************
+         * Classe
+         *****************************************************/
+         
+         function Classe(nome,loc,nom,metricas,codesmells){
+             
+                this.nome = nome;
+                
+                this.loc = loc;
+                this.nom = nom;
+             
+                //Altura do Prédio - LOC
+                this.altura = this.loc;
+                //Largura da Classe - NOM
+                this.w = (this.nom * 10) + 80;
+                //Comprimento da Classe - NOM
+                this.h = (this.nom * 10) + 80;
+                this.metricas = metricas;
+                this.codesmells = codesmells;
+                
+                
+                
+         }
+         
+         
+         
+         
+         
+         
+        
+         function adicionarPacote(p,c){
+             
+             for(i=0;i<pacotes.length;i++){
+                 
+                 if(pacotes[i].nome == p ){
+                     pacotes[i].nome = p;
+                     pacotes[i].adicionarClasse(c);                     
+                     return true;
+                 }
+                 
+             }
+             
+             let pac = new Pacote(p);
+             pac.adicionarClasse(c);
+             pacotes.push(pac);
+             
+         }
+         
+         
+         
+         
+          
+         
+         dados.forEach(function(classe){
+            var loc = classe.classes[0].metrics[0].value;
+            var nom = classe.classes[0].metrics[1].value; 
+            var metricas = classe.codesmells_threshholds;
+            var codesmells = classe.classes[0].codesmells; 
+            c = new Classe(classe.classes[0].name,loc,nom,metricas,codesmells); 
+             
+            adicionarPacote(classe.package,c);
+             
+         });
+          
+         
+         //console.log("---------------");
+         //pacotes[0].calculaTamanho();
+         //console.log(pacotes);
+         //pacotes.forEach(function(pacote){
+             
+         //});
+         
+         
+        
+         
+         
+         
+         
+    </script>    
+        
+        <script>
+
+   
+    
+
+
+ var scene,renderer;
+ var width = window.innerWidth;
+ var height = window.innerHeight;
+ 
+ var raycaster = new THREE.Raycaster();  
+ var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 100000000000);
+ var objetos = [];
+    
+    
+init();            
+function criarcidade(){
+    
+    var geometry = new THREE.BoxGeometry(1800,10,2000);
+    var material = new THREE.MeshBasicMaterial( {color: 0xFFFFFF} );
+  
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5));
+    
+    var cidade = new THREE.Mesh(geometry, material);
+    
+    cidade.position.set(0,0,0);
+    cidade.scale.set(1,1,1);
+    
+    var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+
+    var mat = new THREE.LineBasicMaterial( { color: 0xCCCCCC, linewidth: 2 } );
+
+    var wireframe = new THREE.LineSegments( geo, mat );
+
+    scene.add( wireframe );
+    
+    cidade.name = "cidade"
+    
+    objetos.push(cidade);
+    
+    return cidade;
+   
+    
+    
+    
+}
+
+function criarbairro(largura,profundidade,nome)
+{
+    
+    var geometry = new THREE.BoxGeometry(largura,20,profundidade);
+    
+    
+    var cor = 2 * 0xfffbcc ;
+    var material = new THREE.MeshLambertMaterial({ color: cor});
+    
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,0));
+    
+    var bairro = new THREE.Mesh(geometry, material);
+    
+    //bairro.position.set(-600,10,-700);
+    largura = 600;
+    bairro.position.x = (0 - ( 1800 - largura )/2 ) ;
+    bairro.position.z = (0 - (2000 - largura) /2 );
+    
+    
+    bairro.position.y = 10;
+    bairro.scale.set(1,1,1);
+    bairro.name = nome;
+    bairro.conteudo = "Pacote: "+nome;
+
+    objetos.push(bairro);
+    
+    return bairro;
+
+}
+            
+            
+function criarpredio(x,z,altura,largura,nome,pacote){
+    
+    console.log(altura,largura);
+    
+    geometry = new THREE.BoxGeometry( largura - 50, altura, largura - 50 );
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0, 0));
+
+    var material = new THREE.MeshLambertMaterial({color:0x2f9dbd});
+	
+    
+    
+    let predio = new THREE.Mesh( geometry,material);
+    
+   
+    predio.position.x = (x - ( pacote.w - largura )/2 );
+    predio.position.z = (z - ( pacote.h - largura) /2 );
+    
+    //console.log(nome,predio.position.x,predio.position.z)
+    
+    predio.position.y = (altura - (altura / 2))+ 10;
+    predio.scale.set(1,1,1);
+    predio.name = nome;
+    predio.conteudo = "Classe: "+nome+"<br> Pacote: "+pacote.nome;
+    objetos.push(predio);
+    
+    return predio;
+        
+    
+}            
+        
+
+function init() {
+    
+    
+
+	scene = new THREE.Scene();
+
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true});
+    renderer.setClearColor(0xcccccc);
+    renderer.setSize(width, height);
+    renderer.setPixelRatio( window.devicePixelRatio );
+    document.getElementById("cidade").appendChild(renderer.domElement);
+    
+    
+    camera.position.set(0, 1070, 2500);
+    
+    
+    luz = new THREE.AmbientLight(0xFFFFFF,0.5);
+    
+    luz2 = new THREE.PointLight(0xFFFFFF,0.5);
+    
+    scene.add(luz);
+    scene.add(luz2);
+    scene.add(camera);
+    
+    pacotes[0].calculaTamanho();
+    
+    
+    var predio = new Array(); 
+    var cidade = criarcidade(scene);  
+    
+    
+    var bairro = criarbairro(pacotes[0].w,pacotes[0].h,pacotes[0].nome);
+    
+    scene.add(cidade);
+    /*    
+    predio1 = criarpredio(-350,800,290,80,"classe1");
+    predio2 = criarpredio(400,0,500,80,"classe2");
+    predio3 = criarpredio(-200,300,650,180,"classe3");
+    predio4 = criarpredio(100,30,520,60,"classe4");
+    predio5 = criarpredio(200,50,700,100,"classe5");
+    predio6 = criarpredio(800,20,80,90,"classe6");
+    predio7 = criarpredio(50,870,370,90,"classe7");
+    
+    
+    predio1 = criarpredio(0,0,290,80,"classe1");
+    predio2 = criarpredio(250,0,500,80,"classe2");
+    
+    bairro.add(predio1,predio2);
+    */
+    
+    for(i = 0; i <  pacotes[0].classes.length; i++ ){
+        console.log(pacotes[0].classes[i]);
+        classe = pacotes[0].classes[i];
+        
+        var predio = criarpredio(classe.fit.x,classe.fit.y,classe.altura,classe.w,classe.nome,pacotes[0]);
+        bairro.add(predio);
+        
+        
+    }
+    
+    cidade.add(bairro);
+    //cidade.add(bairro,predio1,predio2,predio3,predio4,predio5,predio6,predio7);
+   
+    
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    
+    
+    
+    
+    animate();
+    window.addEventListener('mousemove',acaomovimentacaomouse,false);
+
+    window.addEventListener( 'resize', onResize );
+        
+        
+}
+var objetoanterior;
+var dadosclasse = document.createElement("div");
+function acaomovimentacaomouse(e){
+    e.preventDefault();
+    
+    var raycaster = new THREE.Raycaster(); // create once and reuse
+    var mouse = new THREE.Vector2(); // create once and reuse
+
+mouse.x = ( e.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+mouse.y = - ( e.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+raycaster.setFromCamera( mouse, camera );
+
+var intersects = raycaster.intersectObjects( objetos );
+    
+
+if ( intersects.length > 0 ) {
+    
+    if(objetoanterior != intersects[0].object ){
+        
+        console.log( intersects[0].object );
+        
+        if(objetoanterior){
+            objetoanterior.material.color.set(objetoanterior.currentHex);
+        }
+            objetoanterior = intersects[0].object;   
+            objetoanterior.currentHex = objetoanterior.material.color.getHex();
+            if(intersects[0].object.name != "cidade" ){
+               objetoanterior.material.color.set(0xFF0000);
+                console.log(e.clientY);
+                
+                dadosclasse.innerHTML = objetoanterior.conteudo;
+                dadosclasse.style = "position:fixed;top:"+(e.clientY)+"px;left:"+(e.clientX+20)+"px;background-color:rgba(255,255,255,.85);width:250px;min-height:100px;border:1px solid #666;padding: 10px;";
+                document.getElementById("cidade").appendChild(dadosclasse);
+                
+                
+            }else{
+                dadosclasse.style = "display:none;"        
+            }
+        
+    }
+    
+        
+}else{
+    if(objetoanterior){
+        objetoanterior.material.color.set(objetoanterior.currentHex);
+        dadosclasse.style = "display:none;"
+    }
+    objetoanterior = null;
+    
+}
+    
+    
+     
+    
+    
+   
+}
+
+
+function onResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+    
+    
+    
+}
+
+function animate() {
+
+	requestAnimationFrame( animate );
+    render();
+  
+}
+function render(){
+    renderer.render( scene, camera );
+                
+}
+            
+            
+        
+        </script>
+
+        
+        
+       
+               
+    
+    </body>
+</html>

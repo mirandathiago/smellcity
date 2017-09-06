@@ -1,0 +1,204 @@
+*{
+    margin:0;
+    padding:0;
+
+}
+
+@font-face{
+    font-family:racing;
+    src: url('RacingSansOne-Regular.ttf');
+}
+
+@font-face{
+    font-family:opensans;
+    src: url('OpenSans-Regular.ttf');
+}
+
+body{
+    font-family:opensans;
+    background:#CCCCCC;
+}
+
+header{
+    width:100%;
+    height:80px;
+    position:fixed;
+    top:0;
+    z-index:999999;
+    background:#FFF;
+    border-bottom:3px solid #999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+header .header-logo{
+    max-height:95%;
+    margin:0 1rem;
+
+}
+
+header hgroup{
+  height:80px;  
+  display:flex;
+
+}
+
+header .header-titulos{
+    font-family:racing;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+.header-titulos h1{
+    color:#3cc0c2;
+    font-size:2.5rem;
+   
+}
+
+.header-titulos h2{
+    color:#C3C3C3;
+    font-size:1rem;
+    margin-top:-.5rem;
+}
+
+#smell-select{
+    height:50px;
+    margin-right:1rem;
+    background:#3cc0c2;
+    color:#FFF;
+    font-weight: bold;
+    
+}
+#smell-rodape{
+    width:100%;
+    background:#FFF;
+    height:30px;
+    position:fixed;
+    z-index:90000;
+    bottom:0;
+    font-size:.8rem;
+    display:flex;
+    justify-content: space-around;
+    align-items:center;
+   
+}
+
+#smell-info{
+    width:300px;
+    background:rgba(255,255,255,.6);
+    position:fixed;
+    top:80px;
+    padding:20px;
+    font-size:0.8rem;
+    left:-400px;
+     transition: 1s;
+     min-height:50vh;
+    
+
+}
+
+#smell-info #smell-info-data{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    display:flex;
+}
+
+#smell-info #smell-info-button{
+    width:50px;
+    height:50px;
+    position:absolute;
+    top:20px;
+    right:-50px;
+    background-image:url('info.png');
+    background-size:80%;
+    background-repeat:no-repeat;
+    background-position:center;
+    content:'';
+    background-color:rgba(255,255,255,.6);
+    border-radius:0 100% 100% 0;
+    cursor:pointer;
+  
+}
+
+#smell-info h2{
+    color:#3cc0c2;
+}    
+
+#smell-info .item{
+    padding:1rem;
+    background:#FFF;
+    border:1px solid #000;
+    border-radius:10px;
+    width:70%;
+   
+    
+}
+#smell-info .and{
+    width:50px;
+    height:50px;
+    line-height: 50px;
+    background:#FFF;
+    border:1px solid #000;
+    border-radius:100%;
+    text-align:center;
+    display:inline-block;
+    margin: 5px 0;
+    background-color:#f2f0a7;
+    
+}
+#smell-info .estrategia{
+    margin-top:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+#smell-info  h3{
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+#dadoscomplementares{
+     width:100%;
+     height:250px;
+     position:fixed;
+     bottom:30px;
+     background-color:rgba(255,255,255,.6);
+     font-size:0.8rem;
+     overflow-y: scroll;
+     box-sizing: border-box;
+     padding:0.5rem;
+     border-top:5px solid #C3C3C3;
+     display:none;
+
+
+}
+
+.tabela{
+    width:100%;
+    
+    border-collapse: collapse;
+
+}
+.tabela, .tabela th, .tabela td{
+    /*border:1px solid #C3C3C3;*/
+     text-align:left;
+     vertical-align: center;
+}
+
+.tabela th{
+ border-bottom: 1px solid #C3C3C3;
+    padding: 15px;
+    background-color: #3cc0c2;
+    color: white;
+
+}
+
+.tabela td{
+     border-bottom: 1px solid #C3C3C3;
+    padding: 15px;
+}
+
+.tabela tr:nth-child(even) {background-color: #f2f2f2}
