@@ -1,357 +1,355 @@
 <!DOCTYPE html>
 <html>
     <head>
-        
+        <link href="estilo.css" rel="stylesheet">
     </head>
     <body>
     
-    
-        
+        <header>
+            <hgroup>
+             <img src="icon.png" class="header-logo">
+             <div class="header-titulos">
+                <h1>SmellCity</h1>
+                <h2>Visualização de Anomalias de Código</h2>  
+             </div> 
+            </hgroup> 
+              <select id="smell-select">
+                    <option value="">Selecione o Code Smell a ser Visualizado</option>
+                    <option value="GOD_CLASS"> God Class</option>
+                    <option value="FEATURE_ENVY"> Feature Envy</option>
+                    <option value="REFUSED_PARENT_BEQUEST"> Refused Parent Bequest</option>
+ 
+              </select>
+
+        </header>
+
+
+        <section id="smell-info" class="some">
+            <div id="smell-info-button"></div>
+
+            <div id="smell-info-data">
+              
+
+             </div>
+
+        </section>    
+   
+
+
         <div id="cidade"></div>
     
     
+        <section id="dadoscomplementares">
+
+        </section>
+        
+        
+        
+        <footer id="smell-rodape">
+
+        </footer>
+
+
+
+
+
     
      <script src="three.js"></script>
      <script src="orbit.js"></script>
      <script src="packer.growing.js"></script>
      <script src="packer.js"></script>    
-        
-     <script src="analise_pacote.json"></script>    
-        
+     <script src="underscore.js"></script>    
+     <script src="analise4.json"></script>    
+     <script src="analise4-adicionais.json"></script>  
+     <script src="js/cidade.js"></script>
+     <script src="js/bairros.js"></script>
+     <script src="js/predios.js"></script>        
+     <script src="js/helper.js"></script>    
     
      <script>
         
-        var pacotes = new Array();
-        var classes = new Array();
-         
-         
-         function Pacote(nome){   
-                this.nome = nome;
-                this.classes = new Array();
-                this.w = 0;
-                this.h = 0;
-                this.profundidade = 0;
-                
-                this.adicionarClasse= function(c){
-                                        
-                    for(var i=0;i<this.classes.length;i++){
-                        if(this.classes[i].nome == c.nome ){
-                            //this.classes[i].atualizar(c);
-                            
-                            this.classes[i].w = c.w;
-                            //this.altura = classe.altura;
-                            this.classes[i].h = c.h;
-                            //this.metricas = classe.metricas;
-                            //this.codesmells = classe.codesmells;
-
-                            return true;
-                        }
-                   }
-                   this.classes.push(c);
-                }
-                
-                this.calculaTamanho = function(){
-                    
-                    //console.log(this.classes);
-                    
-                    this.classes.sort(function(a,b) { return (b.h > a.h); });
-                    var packer = new GrowingPacker();
-                    packer.fit(this.classes);
-                    
-                    //console.log(this.classes);
-                    //console.log(packer.root);
-                    
-                    /*for(var i=0;i<this.classes.length;i++){
-                        
-                        console.log(this.classes[i].fit.x,this.classes.fit.y,this.classes[i].w,this.classes[i].h);
-                        
-                        this.w += this.classes[i].w;
-                        
-                         
-                   }*/
-                    
-                    this.w = packer.root.w + 10;
-                    this.h = packer.root.w + 10;
-                    
-                } 
-                
-             
-                
-                
-         };
-         
-         
-         /****************************************************
-         * Classe
-         *****************************************************/
-         
-         function Classe(nome,loc,nom,metricas,codesmells){
-             
-                this.nome = nome;
-                
-                this.loc = loc;
-                this.nom = nom;
-             
-                //Altura do Prédio - LOC
-                this.altura = this.loc;
-                //Largura da Classe - NOM
-                this.w = (this.nom * 10) + 80;
-                //Comprimento da Classe - NOM
-                this.h = (this.nom * 10) + 80;
-                this.metricas = metricas;
-                this.codesmells = codesmells;
-                
-                
-                
-         }
-         
-         
-         
-         
-         
-         
-        
-         function adicionarPacote(p,c){
-             
-             for(i=0;i<pacotes.length;i++){
-                 
-                 if(pacotes[i].nome == p ){
-                     pacotes[i].nome = p;
-                     pacotes[i].adicionarClasse(c);                     
-                     return true;
-                 }
-                 
-             }
-             
-             let pac = new Pacote(p);
-             pac.adicionarClasse(c);
-             pacotes.push(pac);
-             
-         }
-         
-         
-         
-         
-          
-         
-         dados.forEach(function(classe){
-            var loc = classe.classes[0].metrics[0].value;
-            var nom = classe.classes[0].metrics[1].value; 
-            var metricas = classe.codesmells_threshholds;
-            var codesmells = classe.classes[0].codesmells; 
-            c = new Classe(classe.classes[0].name,loc,nom,metricas,codesmells); 
-             
-            adicionarPacote(classe.package,c);
-             
-         });
-          
-         
-         //console.log("---------------");
-         //pacotes[0].calculaTamanho();
-         //console.log(pacotes);
-         //pacotes.forEach(function(pacote){
-             
-         //});
-         
-         
-        
-         
-         
-         
-         
-    </script>    
-        
-        <script>
-
-   
-    
-
-
- var scene,renderer;
- var width = window.innerWidth;
- var height = window.innerHeight;
+    var cont=0;
+    var objetoanterior;
+    var objetoanteriorclick;
+    var dadosclasse = document.createElement("div");
+    var renderer;
+    var scene = new THREE.Scene();
+    var width = window.innerWidth ;
+    var height = window.innerHeight;
  
- var raycaster = new THREE.Raycaster();  
- var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 100000000000);
- var objetos = [];
+    var raycaster = new THREE.Raycaster();  
+    var mouse = new THREE.Vector2();
     
-    
-init();            
-function criarcidade(){
-    
-    var geometry = new THREE.BoxGeometry(1800,10,2000);
-    var material = new THREE.MeshBasicMaterial( {color: 0xFFFFFF} );
-  
-    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0.5, 0.5, 0.5));
-    
-    var cidade = new THREE.Mesh(geometry, material);
-    
-    cidade.position.set(0,0,0);
-    cidade.scale.set(1,1,1);
-    
-    var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+    var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 100000);
+    var objetos = [];
+    var numeropacotes = 0;
+    var numeroclasses = 0;
+    var numerolinhas = 0;
 
-    var mat = new THREE.LineBasicMaterial( { color: 0xCCCCCC, linewidth: 2 } );
+         
+                                
+    var cidade  = new Cidade();
+    cidade.processarDados(dados,adicionais);
+    cidade.calcularPosicoes();
 
-    var wireframe = new THREE.LineSegments( geo, mat );
+    init(cidade);      
 
-    scene.add( wireframe );
-    
-    cidade.name = "cidade"
-    
-    objetos.push(cidade);
-    
-    return cidade;
-   
-    
-    
-    
-}
 
-function criarbairro(largura,profundidade,nome)
-{
+         
+function init(cidade) {
     
-    var geometry = new THREE.BoxGeometry(largura,20,profundidade);
-    
-    
-    var cor = 2 * 0xfffbcc ;
-    var material = new THREE.MeshLambertMaterial({ color: cor});
-    
-    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,0));
-    
-    var bairro = new THREE.Mesh(geometry, material);
-    
-    //bairro.position.set(-600,10,-700);
-    largura = 600;
-    bairro.position.x = (0 - ( 1800 - largura )/2 ) ;
-    bairro.position.z = (0 - (2000 - largura) /2 );
-    
-    
-    bairro.position.y = 10;
-    bairro.scale.set(1,1,1);
-    bairro.name = nome;
-    bairro.conteudo = "Pacote: "+nome;
-
-    objetos.push(bairro);
-    
-    return bairro;
-
-}
-            
-            
-function criarpredio(x,z,altura,largura,nome,pacote){
-    
-    console.log(altura,largura);
-    
-    geometry = new THREE.BoxGeometry( largura - 50, altura, largura - 50 );
-    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0, 0));
-
-    var material = new THREE.MeshLambertMaterial({color:0x2f9dbd});
-	
-    
-    
-    let predio = new THREE.Mesh( geometry,material);
-    
-   
-    predio.position.x = (x - ( pacote.w - largura )/2 );
-    predio.position.z = (z - ( pacote.h - largura) /2 );
-    
-    //console.log(nome,predio.position.x,predio.position.z)
-    
-    predio.position.y = (altura - (altura / 2))+ 10;
-    predio.scale.set(1,1,1);
-    predio.name = nome;
-    predio.conteudo = "Classe: "+nome+"<br> Pacote: "+pacote.nome;
-    objetos.push(predio);
-    
-    return predio;
-        
-    
-}            
-        
-
-function init() {
-    
-    
-
-	scene = new THREE.Scene();
-
     
     renderer = new THREE.WebGLRenderer({ antialias: true});
     renderer.setClearColor(0xcccccc);
-    renderer.setSize(width, height);
+    renderer.setSize(width, height/1.1);
     renderer.setPixelRatio( window.devicePixelRatio );
     document.getElementById("cidade").appendChild(renderer.domElement);
+    camera.position.set(0, cidade.h,cidade.w);
     
-    
-    camera.position.set(0, 1070, 2500);
-    
-    
-    luz = new THREE.AmbientLight(0xFFFFFF,0.5);
-    
-    luz2 = new THREE.PointLight(0xFFFFFF,0.5);
+    luz = new THREE.AmbientLight(0xFFFFFF,0.9);
+    luz2 = new THREE.PointLight(0xFFFFFF,-0.5);
     
     scene.add(luz);
     scene.add(luz2);
     scene.add(camera);
     
-    pacotes[0].calculaTamanho();
-    
-    
-    var predio = new Array(); 
-    var cidade = criarcidade(scene);  
-    
-    
-    var bairro = criarbairro(pacotes[0].w,pacotes[0].h,pacotes[0].nome);
-    
-    scene.add(cidade);
-    /*    
-    predio1 = criarpredio(-350,800,290,80,"classe1");
-    predio2 = criarpredio(400,0,500,80,"classe2");
-    predio3 = criarpredio(-200,300,650,180,"classe3");
-    predio4 = criarpredio(100,30,520,60,"classe4");
-    predio5 = criarpredio(200,50,700,100,"classe5");
-    predio6 = criarpredio(800,20,80,90,"classe6");
-    predio7 = criarpredio(50,870,370,90,"classe7");
-    
-    
-    predio1 = criarpredio(0,0,290,80,"classe1");
-    predio2 = criarpredio(250,0,500,80,"classe2");
-    
-    bairro.add(predio1,predio2);
-    */
-    
-    for(i = 0; i <  pacotes[0].classes.length; i++ ){
-        console.log(pacotes[0].classes[i]);
-        classe = pacotes[0].classes[i];
-        
-        var predio = criarpredio(classe.fit.x,classe.fit.y,classe.altura,classe.w,classe.nome,pacotes[0]);
-        bairro.add(predio);
-        
-        
-    }
-    
-    cidade.add(bairro);
-    //cidade.add(bairro,predio1,predio2,predio3,predio4,predio5,predio6,predio7);
-   
+    cidade.plotar(scene);  
     
     const controls = new THREE.OrbitControls( camera, renderer.domElement );
     
-    
-    
-    
-    animate();
+    animar();
     window.addEventListener('mousemove',acaomovimentacaomouse,false);
-
+    document.getElementById("cidade").addEventListener('mousedown',acaoclick,false);
     window.addEventListener( 'resize', onResize );
         
+
+    document.querySelector('#smell-select').addEventListener('change',selectsmell,false);
+    document.querySelector('#smell-info-button').addEventListener('click',painel,false);
+    document.querySelector("#smell-rodape").innerHTML = "<h2>Projeto: Junit 4</h2><h4>Número de Classes: "+numeroclasses+"</h4><h4>Número de Pacotes: "+numeropacotes+"</h4><h4>Total de Linhas de Código: "+numerolinhas+"</h4>";
+    
         
 }
-var objetoanterior;
-var dadosclasse = document.createElement("div");
-function acaomovimentacaomouse(e){
-    e.preventDefault();
+         
+  
+
+
+function painel(){
+
+    var info = document.querySelector('#smell-info');
+    if(parseInt(info.style.left) == 0){
+        setTimeout(function(){
+            info.style.left = '-340px'; 
+        },500);
+    }else{
+
+        setTimeout(function(){
+          info.style.left = '0'; 
+        },500);
+    }
+
+
+
+
+}
+
+      
+var modificados = [];
+function selectsmell(e){
+
+   var quantidade = 0;
+   var smell = this.value;
+   var info = document.querySelector('#smell-info');
+    var smellinfodados = {};
+     smellinfodados[""] = "<h2>Nenhum Code Smell Selecionado!</h2>";
+     smellinfodados['GOD_CLASS'] = `<h2>GOD CLASS</h2>  
+
+              <p>São classes que tendem a centralizar a inteligência do sistema. Uma God Class delega pouco, realizado boa parte do trabalho, 
+                 acessando diretamente muitos atributos de outras classes. (Lanza e Marinescu, 2007)</p>
+
+              <div class="estrategia">   
+                <h3>Estratégia de Detecção</h3>   
+
+                <div class="item">Classes usam diretamente mais que alguns atributos de outras classes.<br>ATFD > POUCOS </div>
+                <div class="and">E</div>
+                <div class="item">A Complexidade funcional da classe é muito alta.<br> WMC >= MUITO ALTA</div>  
+                <div class="and">E</div>
+                <div class="item">Coesão da classe é baixa.<br> TCC < UM TERÇO THIRD</div> 
+             </div>
+
+             <h3>Valores Limiares</h3>
+
+             <p>ATFD : 5</p>
+             <p>WMC : 47</p>
+             <p>TCC : 0.3333333432674408</p>`; 
+
+     smellinfodados['FEATURE_ENVY'] =   `<h2>FEATURE ENVY</h2>
+     <p>São Métodos que parecem estar mais interessados em dados de outras classes que de sua própria classe. Estes métodos acessam diretamente ou
+     através de métodos acessores uma grande quantidade de dados de outras classes. Isto pode indicar que o método está em um local errado
+     e que talvez deva ser movido para outra classe (Lanza e Marinescu, 2007)</p>
+     
+        <div class="estrategia">   
+                <h3>Estratégia de Detecção</h3>   
+
+                <div class="item">Método usa diretamente mais que poucos atributos de outras classes.<br>ATFD > POUCOS </div>
+                <div class="and">E</div>
+                <div class="item">Método utiliza mais atributos de outras classes que de sua própria.<br> LAA < UM TERÇO</div>  
+                <div class="and">E</div>
+                <div class="item"> O atributos "estrangeiros"  utilizados pertencem a poucas outras classes.<br> FDP !<= POUCOS</div> 
+        </div>
+
+        <h3>Valores Limiares</h3>
+
+             <p>ATFD : 3</p>
+             <p>LAA : 0.3333333432674408</p>
+             <p>FDP : 3</p>
+     
+     `;
+
+     smellinfodados['REFUSED_PARENT_BEQUEST'] = `<h2>REFUSED PARENT BEQUEST</h2>
+     <p> É uma anomalia estrutural que ocorre na relação de herança entre uma superclasse e suas subclasses. Ocorre quando uma clase filha se recusa 
+     a utilizar o legado deixado por sua classe pai (Lanza e Marinescu, 2007)</p> 
+     
+      <div class="estrategia">   
+                <h3>Estratégia de Detecção</h3>   
+
+                <div class="item">Classse filha ignora a Herença.<br>( [ A classe pai prover mais que poucos membros protegidos - membersNProtM > POUCOS ] <br>E<br> [ A classe filha utiliza pouco da henraça -  BUR < UM TERÇO ] ) <br>OU<br> [ Métodos sobreescritos são raros nos filhos -  BOvR < UM TERÇO ]</div>
+                <div class="and">E</div>
+                <div class="item">Classe filha não é simples nem pequena.<br> ([Complexidade funcional acima da média - AMW > MÉDIA] <br>OU<br> [Complexidade da classe não é menor que a média - WMC > MÉDIA]) <br>E<br> [Tamanho da Classe está acima da média - NOM > MÉDIA ] </div>  
+                 
+        </div>
+
+     
+     `;
+
+
+
+    document.querySelector('#smell-info-data').innerHTML = smellinfodados[smell];         
+
+        if(smell != ""){
+        
+                setTimeout(function(){
+                    info.style.left = '0'; 
+                },500);
+
+                setTimeout(function(){
+                     info.style.left = '-340px'; 
+                },8000);
     
+
+        }else{
+            info.style.left = '-400px'; 
+        }
+
+
+     
+
+
+   
+  
+       
+        modificados.forEach(function(classe){
+             classe.material.color.set(0x2f9dbd); 
+             conteudo = classe.conteudo.split("<h5 style='text-align:center;'>Valores de Métricas utilizadas para Detectar o Code Smell</h5>");
+             classe.conteudo = conteudo[0];
+
+        });   
+        modificados = [];
+ 
+
+
+   for(let i=0;i<objetos.length;i++){
+
+        if(objetos[i].userData.codesmells && objetos[i].userData.codesmells.length > 0){
+            
+            for(let a=0;a< objetos[i].userData.codesmells.length; a++){
+                 if(objetos[i].userData.codesmells[a].codesmell == smell){
+                     //console.log(smell);
+                     modificados.push(objetos[i]);
+                     window[smell](objetos[i],a);
+                      quantidade++;
+                 }
+
+            }
+            
+           
+        }
+
+
+   }
+
+}
+
+
+
+function REFUSED_PARENT_BEQUEST(classe,smell){
+
+    classe.material.color.set(0xff4859);
+    classe.corOriginal = "#ff4859";
+    classe.conteudo += "<h5 style='text-align:center;'>Valores de Métricas utilizadas para Detectar o Code Smell</h5>";
+    classe.conteudo += "<h5 style='text-align:center;color:#ff4859'>REFUSED PARENT BEQUEST</h5>";
+    classe.conteudo += "<p><b>AMW:</b>"+ classe.userData.codesmells[smell].metrics["AMW"] +"</p>";
+    classe.conteudo += "<p><b>BOvR:</b>"+ classe.userData.codesmells[smell].metrics["BOvR"] +"</p>";
+    classe.conteudo += "<p><b>BUR:</b>"+ classe.userData.codesmells[smell].metrics["BUR"] +"</p>";
+    classe.conteudo += "<p><b>NOM:</b>"+ classe.userData.codesmells[smell].metrics["NOM"] +"</p>";
+    classe.conteudo += "<p><b>NProtM:</b>"+ classe.userData.codesmells[smell].metrics["NProtM"] +"</p>";
+    classe.conteudo += "<p><b>WMC:</b>"+ classe.userData.codesmells[smell].metrics["WMC"] +"</p>";
+
+
+}
+
+
+function FEATURE_ENVY(classe,smell){
+
+    classe.material.color.set(0xff4859);
+    classe.corOriginal = "#ff4859";
+    classe.conteudo += "<h5 style='text-align:center;'>Valores de Métricas utilizadas para Detectar o Code Smell</h5>";
+    classe.conteudo += "<h5 style='text-align:center;color:#ff4859'>FEATURE ENVY</h5>";
+    classe.conteudo += "<p>Quantidade de Métodos Afetados:"+classe.userData.codesmells[smell].methods.length+"</p>";
+    classe.conteudo += "<h5 style='text-align:center;color:#ff4859'>Clique no Prédio para saber Mais</h5>";
+    
+   
+        
+
+    classe.dadoscomplementares = "<h2 style='text-align:center;'>Classe: "+classe.name+"</h2>";
+    classe.dadoscomplementares += "<h3 style='text-align:center;color:#ff4859'>Métodos Afetados</h3>";
+    classe.dadoscomplementares += "<table class='tabela'>";
+    classe.dadoscomplementares += "<tr><th>Assinatura</th><th>ATFD</th><th>FDP</th><th>LAA</th></tr>";
+    for(let a=0; a<classe.userData.codesmells[smell].methods.length;a++){
+        nomemetodo = classe.userData.codesmells[smell].methods[a].signature.split("(")[0];
+        classe.dadoscomplementares += "<tr>";  
+        classe.dadoscomplementares += "<td>"+classe.userData.codesmells[smell].methods[a].signature+"</td>";
+        classe.dadoscomplementares += "<td>"+classe.userData.codesmells[smell].methods[a].metrics["ATFD"]+"</td>";
+        classe.dadoscomplementares += "<td>"+classe.userData.codesmells[smell].methods[a].metrics["FDP"]+"</td>";
+        classe.dadoscomplementares += "<td>"+classe.userData.codesmells[smell].methods[a].metrics["LAA"]+"</td>";
+        classe.dadoscomplementares += "</tr>";
+    }
+     classe.dadoscomplementares += "</table>";
+    
+
+}
+
+
+function GOD_CLASS(classe,smell){
+
+    //console.log(classe);
+    classe.material.color.set(0xff4859);
+    classe.corOriginal = "#ff4859";
+    classe.conteudo += "<h5 style='text-align:center;'>Valores de Métricas utilizadas para Detectar o Code Smell</h5>";
+    classe.conteudo += "<h5 style='text-align:center;color:#ff4859'>GOD CLASS</h5>";
+    classe.conteudo += "<p><b>ATFD:</b>"+ classe.userData.codesmells[smell].metrics["ATFD"] +"</p>";
+    classe.conteudo += "<p><b>WMC:</b>"+ classe.userData.codesmells[smell].metrics["WMC"] +"</p>";
+    classe.conteudo += "<p><b>TCC:</b>"+ classe.userData.codesmells[smell].metrics["TCC"] +"</p>";
+    //console.log(classe.userData.codesmells[smell].metrics);
+
+
+}
+
+function acaoclick(e){
+    e.preventDefault();
+
+   console.log(objetoanteriorclick);
+   dadoscomplementares = document.querySelector("#dadoscomplementares");
+
     var raycaster = new THREE.Raycaster(); // create once and reuse
     var mouse = new THREE.Vector2(); // create once and reuse
 
@@ -360,31 +358,101 @@ mouse.y = - ( e.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
 raycaster.setFromCamera( mouse, camera );
 
-var intersects = raycaster.intersectObjects( objetos );
-    
+var intersects = raycaster.intersectObjects(objetos);
 
 if ( intersects.length > 0 ) {
     
+    if(objetoanteriorclick != intersects[0].object ){
+      
+       
+        if(objetoanteriorclick ){
+            cor = new THREE.Color( intersects[0].object.corOriginal );
+            objetoanteriorclick.material.color.set(cor);
+            objetoanteriorclick.material.transparent = false;
+
+        }
+            objetoanteriorclick  = intersects[0].object;   
+            
+
+            
+                
+                
+                               
+                if(objetoanteriorclick.dadoscomplementares){
+
+                    objetoanteriorclick.material.color.set(0xf1f7be);
+                    objetoanteriorclick.material.transparent = true;
+                    objetoanteriorclick.material.opacity = 0.8; 
+                    
+                    dadoscomplementares.style.display = "block";
+                    dadoscomplementares.innerHTML = objetoanteriorclick.dadoscomplementares;
+
+                }else{
+                     dadoscomplementares.style.display = "none";
+                }
+
+
+
+            
+        
+    }else{
+        cor = new THREE.Color( intersects[0].object.corOriginal );
+        objetoanteriorclick.material.color.set(cor);
+        objetoanteriorclick.material.transparent = false;
+        dadosclasse.style = "display:none;"
+        dadoscomplementares.style.display = "none";
+        objetoanteriorclick = null;
+
+    }
+    
+        
+}
+
+
+}
+
+function acaomovimentacaomouse(e){
+    e.preventDefault();
+    
+
+   
+mouse.x = ( e.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+mouse.y = - ( e.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+raycaster.setFromCamera( mouse, camera );
+
+var intersects = raycaster.intersectObjects(objetos);
+    
+if ( intersects.length > 0 ) {
+
     if(objetoanterior != intersects[0].object ){
         
-        console.log( intersects[0].object );
+    //  console.log(intersects[0].object)
+
+
         
         if(objetoanterior){
             objetoanterior.material.color.set(objetoanterior.currentHex);
+            objetoanterior.material.transparent = false;
+
         }
             objetoanterior = intersects[0].object;   
             objetoanterior.currentHex = objetoanterior.material.color.getHex();
             if(intersects[0].object.name != "cidade" ){
-               objetoanterior.material.color.set(0xFF0000);
-                console.log(e.clientY);
+               objetoanterior.material.color.set(0xf1f7be);
+               objetoanterior.material.transparent = true;
+               objetoanterior.material.opacity = 0.8;  
                 
+                              
                 dadosclasse.innerHTML = objetoanterior.conteudo;
-                dadosclasse.style = "position:fixed;top:"+(e.clientY)+"px;left:"+(e.clientX+20)+"px;background-color:rgba(255,255,255,.85);width:250px;min-height:100px;border:1px solid #666;padding: 10px;";
+                dadosclasse.style = "position:fixed;top:"+(e.clientY)+"px;left:"+(e.clientX+30)+"px;background-color:rgba(255,255,255,.85);min-width:250px;min-height:100px;border:1px solid #666;padding:10px;";
                 document.getElementById("cidade").appendChild(dadosclasse);
                 
-                
+ 
+
             }else{
-                dadosclasse.style = "display:none;"        
+                dadosclasse.style = "display:none;"
+                
             }
         
     }
@@ -393,17 +461,15 @@ if ( intersects.length > 0 ) {
 }else{
     if(objetoanterior){
         objetoanterior.material.color.set(objetoanterior.currentHex);
+        objetoanterior.material.transparent = false;
         dadosclasse.style = "display:none;"
+        
     }
     objetoanterior = null;
     
 }
     
     
-     
-    
-    
-   
 }
 
 
@@ -418,9 +484,9 @@ function onResize() {
     
 }
 
-function animate() {
+function animar() {
 
-	requestAnimationFrame( animate );
+	requestAnimationFrame( animar );
     render();
   
 }
@@ -428,11 +494,16 @@ function render(){
     renderer.render( scene, camera );
                 
 }
-            
-            
-        
-        </script>
 
+       
+ 
+  
+
+
+
+    </script>    
+        
+        
         
         
        
